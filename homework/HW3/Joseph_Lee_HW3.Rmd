@@ -100,7 +100,7 @@ n
 
 d. The sample size required to get a standard error lower than 1/10 was smaller in part **c** than it was in part **b**.  We would expect for this to be the case before we ran any code.  Why?
 
-
+In part b x was defined as a vector with 2 elements of value 10, while in part c x was defined as an empty random variable, so standard error becomes smaller quicker.
 
 ### 3. Do the following (Efron's bootstrap):
 
@@ -145,7 +145,7 @@ No, definitely not. The first column is normally distributed, but the distributi
 
 a. make sure you have the dataset [WPP2010.csv](https://uofi.box.com/shared/static/vielwghs3qtdf2p25nejeiaq6ce9nonf.csv) (your file location may need to change) and then run the commands: 
 
-```{r, eval = FALSE}
+```{r}
 # load in UN dataset and remove irrelevant variables
 options(warn=-1)
 WPP2010 <- read.csv("WPP2010.csv", header = TRUE)
@@ -167,14 +167,20 @@ dataset[, 3:4] <- dataset[, 3:4] / 1000
 # Census years 
 dataset.years <- dataset[dataset[, 2] %in% 
   c("1960", "1970", "1980", "1990", "2000", "2010"), ]
+#Change Census years into factor variables
 dataset.years[, 2] <- factor(dataset.years[, 2])
+#Split the data into groups by year
 dataset.years.list <- split(dataset.years, f = as.factor(dataset.years[, 2]))
+#list of sums of the different age groups for each year
 pops <- unlist(lapply(dataset.years.list, function(x) sum(x[, 3:4])))
 ```
 
 b. The code in part **a** is partially commented.  Add comments to all remaining lines of code to make the script clear.
 
 c. Determine the proportion of mainland North American males aged 20-29 that lived in 1970 or before.
+```{r}
+(sum(dataset.years.list$`1960`[3,3:4])+sum(dataset.years.list$`1970`[3,3:4]))/sum(pops)
+```
 
 
 
@@ -269,13 +275,19 @@ a.
 
 ![](https://uofi.box.com/shared/static/2x1h70d5skqpxwke8ftw7xx1rwu41397.jpg)
 
+Both do result in the same matrix, but the second set is much cleaner and makes more sense.
+
 b.
 
 ![](https://uofi.box.com/shared/static/xn2lop472prp18720uevoj4dpyfmtxwq.jpg)
 
+The first set of code makes three separate lists of the numbers 1-10, a diagonal matrix, and the letters of the alphabet. The second set just combines them into one large vector. The first code is better in presenting the data as a list of different sets instead of one lump of data.
+
 c.
 
 ![](https://uofi.box.com/shared/static/zsr6nmyayso7emjkmk6cfwaxs75wujpj.jpg)
+
+Not sure what the first set of code is trying to achieve besides sorting the petal lengths, but the second set of code seems to be solid in finding the sum of petal lengths between 0 and 3.
 
 5. Using the vector y below
 ```{r nt5}
@@ -283,15 +295,39 @@ set.seed(385)
 y <- rnorm(100)
 ```
 
-  a. Use the which.min and which.max functions to dispay the index corresponding to the minimum and maximum elelments of `y`.
+  a. Use the which.min and which.max functions to dispay the index corresponding to the minimum and maximum elements of `y`.
+```{r}
+which.min(y)
+which.max(y)
+```
   
   b. Do the which.min and which.max functions work? (try: max(y) == y[which.max(y)]).
+```{r}
+max(y) == y[which.max(y)]
+min(y) == y[which.min(y)]
+```
+  Yes, they work
   
   c. Use the which function and the length function to report the proportion of the elements of `y` that are greater than 0.
+```{r}
+length(which(y>0))/length(y)
+```
 
   d. Discuss why the proportion in **part c** is close to 0.5. Hint: What is the mean of the normal distribution that generated the elements in `y`?
   
+y generates 100 random variables from the normal distribution, so the data stored in y is normally distributed. So around 0.5 of the elements in y are greater than 0 since the normal distribution is centered at 0.
+  
   e. Create a factor variable with 50 values of `A` and 50 values of `B`, and name this factor variable `trt`. 
+```{r}
+trt = factor(c(rep('A',50),rep('B',50)))
+trt
+```
   
   f. Create a data frame consisting of `x` and `trt`.
+```{r}
+x = 1:100
+
+df = data.frame(x, trt)
+```
+  
   
