@@ -70,12 +70,24 @@ This plot better labels and explains the data in a more simple and understandabl
 a. create a table of descriptive statistics of your choice
 ```{r}
 usable = droplevels(filter(food, Results %in% c("Pass","Fail"), Facility.Type %in% c("Bakery","Restaurant")))
-table(usable$Results, usable$Facility.Type)
+table(usable$Results, usable$Facility.Type)/sum(table(usable$Results, usable$Facility.Type))
 ```
 
 b. add one descriptive statistic to the plot in part **1c**
+```{r}
+color = rep("gray", length(toPlot$Risk))
+color[which(toPlot$Risk == "Risk 1 (High)")] = "orange"
+color[which(toPlot$Risk == "Risk 1 (High)" & toPlot$Results == "Fail")] = "red"
+plot(Longitude~Latitude, main = "Bakeries by Coordinates", data = toPlot, col = color, pch = 19)
+text(41.95, -87.55, labels = "FAILED", col = "red", cex = 1.4)
+text(41.95,-87.580, labels = "Failed Inspection with HIGH Risk", col = "red", cex = .8)
+text(41.84, -87.78, labels = "HIGH RISK", col = "orange", cex = 1.4)
+text(41.84,-87.81, labels = "Adversely affecting public health", col = "orange", cex = .8)
+```
 
 c. write a brief explanatory narrative of the visualization in part **2b**. In your explanation, be convincing and persuasive about your visualization. Attempt to highlight why this visualization is crucial to your imaginary supervisor.
+
+This visual, like before, shows the high risk potential of bakeries in orange, based on the coordinates. Furthermore, from among the bakeries with high risk, the ones that have failed an inspection in some form are highlighted in a red, indicating to the views of even higher concern.
 
 ### 4. Using the SBA Business Loans Data, do the following:
 
@@ -144,7 +156,18 @@ Completion of select in-class tasks will be worth 1 point and will be graded lar
 
 1. Explain what the Riemannian sums simulator in Example 5b of the Week 7 Notes is doing. Why does it work reasonably well? Can you cook up an example where it will not work while keeping $n = 10000$ (Hint: think of the relationship between $a$, $b$, and $n$)?
 
+The function makes a sorted vector of n values between a and b using the random uniform distribution function. It then takes the sum of all the values calculated using the given function to find the integration/Riemannian sum. 
+
 2. Create a custom function that computes 3 different outlier detectors given a single vector of data. The function should return 6 cutoff values (2 for each outlier detector) from the following methods:
+```{r}
+out = function(x) {
+  y = abs(x-mean(x))
+  sig = x[which(y > 3*sd(x))]
+  iqr = x[which(x < (quantile(x,0.25) - 1.5*IQR(x)) | x > (quantile(x,0.75) + 1.5*IQR(x)))]
+  hamp = x[which(abs(x-median(x)) > 3*sd(x))]
+}
+```
+
 
 a. 3 Sigma Rule $|x-\bar{x}|>3 \cdot \hat{\sigma}$ 
   
