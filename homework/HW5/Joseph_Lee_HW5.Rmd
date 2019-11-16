@@ -19,7 +19,7 @@ library(ggplot2)
 library(tidyverse)
 food = read.csv("Food_Inspections.csv")
 toPlot = filter(food, Facility.Type == "Bakery")
-food_plot = ggplot(data = toPlot, aes(Latitude, Longitude, color = Risk))
+food_plot = ggplot(data = toPlot, aes(Longitude,Latitude, color = Risk))
 food_plot + geom_point() + ggtitle("Coordinate Plane of Risk Levels")
 ##plot(Longitude~Latitude, data = toPlot, col = Risk)
 ```
@@ -30,7 +30,7 @@ toPlot = filter(food, Facility.Type == "Bakery")
 risklvl = rep("Low", length(toPlot$Risk))
 risklvl[which(toPlot$Risk == "Risk 1 (High)")] = "High"
 risklvl[which(toPlot$Risk == "Risk 1 (High)" & toPlot$Results == "Fail")] = "Failed"
-food_plot = ggplot(data = toPlot, mapping = aes(Latitude, Longitude, color = risklvl, size = risklvl))
+food_plot = ggplot(data = toPlot, mapping = aes(Longitude,Latitude, color = risklvl, size = risklvl))
 food_plot + geom_point() + ggtitle(label = "Figure 1", subtitle = "Inspection of Bakeries")+ scale_size_manual(values = c(2.5,2,1.5))+ theme_minimal() + scale_color_manual(values=c("red", "orange1","gray"))+ geom_text(y=-87.57, x=41.92, label="FAILED", color="red", size = 6)+ geom_text(x = 41.92, y = -87.6, label = "High Risk Facility and Failed Inspection", color = "red", size = 4)+ geom_text(y=-87.8, x=41.75, label="HIGH RISK", color="orange1", size = 6)+ geom_text(x = 41.75, y = -87.83, label = "adversely affecting public health", color = "orange1", size = 4) + theme(legend.position = "none", plot.title = element_text(size = 12, face = "bold"), plot.caption = element_text(color = "darkgrey",face = "italic", hjust = 1)) + labs(caption = "Figure 1: coordinate plane of data on Bakeries collected highlighting areas with high risk of public health and failed inspections.")
 ```
 
@@ -66,12 +66,8 @@ registerDoParallel(cl)
 nat <- foreach(i=1:20,.combine=rbind) %dopar% {
     library(tidyverse)
     nat1 <- read_csv(paste("nat15p",i,".csv", sep=""))
-    #colnames(nat1) <- paste("X",1:ncol(nat1), sep="")
     nat1 <- droplevels(filter(nat1, MBSTATE_REC != 3,MRACE15 >= 4,MRACE15 <=9))
     nat1 <- select(nat1, MBSTATE_REC, MRACE15, MAGER9, MEDUC)
-    #if(i == 1) nat <- nat1
-    #else nat <- rbind(nat,nat1)
-    #rm(nat1)
     nat1
 }
 stopCluster(cl)
@@ -113,15 +109,29 @@ c. The image below uses the Chicago Food Inspections Data [link here](https://uo
 
 ![](https://uofi.box.com/shared/static/xn71gksmqvz6z30i145c2pnwzrtzblh4.png)
 
+```{r}
+food$yr = format(as.Date(food$Inspection.Date, format = "%m/%d/%Y"), "%Y")
+food$res = ifelse(food$Results=="Fail","Fail","Pass")
+food$res = as.factor(food$res)
+CHGOFood = droplevels(filter(food,Facility.Type == "Restaurant", yr >= 2015,yr<=2016 ))
+ggplot(data = CHGOFood, aes(Longitude, Latitude, color = res)) + geom_point() + scale_color_manual(values = c("cyan","gray")) + theme_minimal() +theme(legend.position ="none") + ggtitle(label = "Chicago Food Inspections",subtitle = "Restaurants Failing to Pass Inspections 2015-2016") + geom_text(x = -87.6298,y = 41.8781, label = "Chicago", color = "black")+ geom_vline(xintercept=-87.6298, color = "violet")+ geom_hline(yintercept=41.8781, color = "violet")
+```
 
 d. The image below uses the Chicago Food Inspections Data. Also, explain the image with Markdown syntax (do not include the explanation within the visualization).
 
 ![](https://uofi.box.com/shared/static/19hgnx2otbpfk2i8kcnk9uthw4kirvux.png)
 
+```{r}
+food$Year = as.Date(food$Inspection.Date, format = "%m/%d/%Y")
+ggplot(data = food, aes(x = Year, group = 1)) + geom_area(stat ="count", fill= "cyan3", color = "darkcyan") + scale_x_date(date_labels = "%Y", breaks = "1 year") + ggtitle(label = "Chicago Food Inspections", subtitle = "Number of Inspections by Date")
+```
 
 ### 4. Do the following:
 
 Redo problem 3 in **HW03** using the parallel programming.  Does parallel computing perform the tasks in parts **c** and **e** faster than the method that you used in **HW03**? Show your work including the runtimes for the un-parallelized and parallelized versions.
+```{r}
+
+```
 
 
 ### 5. Problem in parallel coding
