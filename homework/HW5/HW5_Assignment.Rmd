@@ -1,0 +1,283 @@
+---
+title: "STAT 385 Homework Assignment 05"
+author: ""
+date: "Due by 12:00 PM 11/16/2019"
+output: html_document
+---
+
+
+## HW 5 Problems
+
+Below you will find problems for you to complete as an individual. It is fine to discuss the homework problems with classmates, but cheating is prohibited and will be harshly penalized if detected.
+
+
+### 1. Using the **ggplot** function and tidyverse functionality, do the following visualizations:
+
+a. recreate your improved visualization in **problem 2a of HW04**
+```{r}
+library(ggplot2)
+library(tidyverse)
+food = read.csv("Food_Inspections.csv")
+toPlot = filter(food, Facility.Type == "Bakery")
+food_plot = ggplot(data = toPlot, aes(Latitude, Longitude, color = Risk))
+food_plot + geom_point() + ggtitle("Coordinate Plane of Risk Levels")
+##plot(Longitude~Latitude, data = toPlot, col = Risk)
+```
+
+b. add a new visually appealing layer to the plot that helps clarify the plot and separately include a short description beneath the plot, such as "Fig. 1 shows..."
+```{r}
+toPlot = filter(food, Facility.Type == "Bakery")
+risklvl = rep("Low", length(toPlot$Risk))
+risklvl[which(toPlot$Risk == "Risk 1 (High)")] = "High"
+risklvl[which(toPlot$Risk == "Risk 1 (High)" & toPlot$Results == "Fail")] = "Failed"
+food_plot = ggplot(data = toPlot, mapping = aes(Latitude, Longitude, color = risklvl, size = risklvl))
+food_plot + geom_point() + ggtitle(label = "Figure 1", subtitle = "Inspection of Bakeries")+ scale_size_manual(values = c(2.5,2,1.5))+ theme_minimal() + scale_color_manual(values=c("red", "orange1","gray"))+ geom_text(y=-87.57, x=41.92, label="FAILED", color="red", size = 6)+ geom_text(x = 41.92, y = -87.6, label = "High Risk Facility and Failed Inspection", color = "red", size = 4)+ geom_text(y=-87.8, x=41.75, label="HIGH RISK", color="orange1", size = 6)+ geom_text(x = 41.75, y = -87.83, label = "adversely affecting public health", color = "orange1", size = 4) + theme(legend.position = "none", plot.title = element_text(size = 12, face = "bold"), plot.caption = element_text(color = "darkgrey",face = "italic", hjust = 1)) + labs(caption = "Figure 1: coordinate plane of data on Bakeries collected highlighting areas with high risk of public health and failed inspections.")
+```
+
+c. recreate your improved visualization in **problem 4a of HW04**
+```{r}
+SBA = read.csv("SBAnational.csv")
+SBA$DisbursementGross = as.integer(SBA$DisbursementGross)
+SBA$DisbursementDate = format(as.Date(SBA$DisbursementDate,format = "%d-%b-%y"),"%Y")
+curr = droplevels(filter(SBA, State == "IL", DisbursementDate >= "2000" & DisbursementDate <= "2013", UrbanRural == c(1,2)))
+clean = curr %>% group_by(DisbursementDate) %>% summarize(average = mean(DisbursementGross)/1000)
+SBA_plot = ggplot(data = clean, aes(DisbursementDate,average, group = 1))
+SBA_plot + geom_point() + geom_line() + guides(color = guide_legend()) + theme(legend.title = element_blank()) + labs(title = "Figure 2", subtitle = "Gross Disbursement of Business Loans from 2000 to 2013") + ylab("Gross Avg Disbursement in Thousands") + xlab("Year")
+```
+
+
+d. add a new visually appealing layer to the plot that helps clarify the plot and separately include a short description beneath the plot, such as "Fig. 2 shows..."
+```{r}
+clean = curr %>% group_by(DisbursementDate,UrbanRural) %>% summarize(average = mean(DisbursementGross)/1000)
+clean$UrbanRural = as.factor(clean$UrbanRural)
+SBA_plot = ggplot(data = clean, aes(DisbursementDate,average, color = UrbanRural, group = UrbanRural))
+SBA_plot + geom_point() + geom_line() + guides(color = guide_legend()) + theme(legend.title = element_blank()) + scale_color_discrete(labels = c("Urban", "Rural")) + labs(title = "Figure 2", subtitle = "Gross Disbursement of Banks from 2000 to 2013", caption = "Figure 2: Line graph of the average gross disbursement of \nurban and rural areas in Illinois from the year 2000 to 2013") + ylab("Gross Avg Disbursement in Thousands") + xlab("Year") + theme_minimal()
+```
+
+### 2. Successfully import the US Natality Data (for year 2015). The necesssary data links are in the Datasets file on Prof. Kinson's course website (see [here](https://uofi.box.com/shared/static/kv89ff7n55bkjsxrsx9nlthpl1yocqpo.html)). One is a single csv file 1.9 GB in size. If your computer cannot handle that processing, do use the partitioned version of the data, which are 20 csv files of the same US Natality Data. Here's a [User Guide](https://uofi.box.com/shared/static/ub0tgcz91z2fpnoc1yazkss5yt2bobhy.pdf) for this data that may help with understanding the data. It might also be helpful for this problem or later problems.
+
+#### **Bonus (worth 5 additional points, i.e. your max HW 05 score could be 15 out of 10): do problem 2 using parallel programming ideas (particularly with foreach) discussed in class. No outside functions/packages other than those discussed in the notes on parallel programming.**
+
+```{r}
+RNGkind("L'Ecuyer-CMRG")
+library(doParallel)
+cl = makeCluster(4)
+registerDoParallel(cl)
+nat <- foreach(i=1:20,.combine=rbind) %dopar% {
+    library(tidyverse)
+    nat1 <- read_csv(paste("nat15p",i,".csv", sep=""))
+    #colnames(nat1) <- paste("X",1:ncol(nat1), sep="")
+    nat1 <- droplevels(filter(nat1, MBSTATE_REC != 3,MRACE15 >= 4,MRACE15 <=9))
+    nat1 <- select(nat1, MBSTATE_REC, MRACE15, MAGER9, MEDUC)
+    #if(i == 1) nat <- nat1
+    #else nat <- rbind(nat,nat1)
+    #rm(nat1)
+    nat1
+}
+stopCluster(cl)
+```
+
+
+### 3. Using the **ggplot** function and tidyverse functionality, recreate or reimagine the following visualizations using the appropriate data. Be sure to use the visual design considerations from Knaflic's **Storytelling with Data**.
+
+a. The image below uses the US Natlity Data. Also, explain the image with Markdown syntax.
+
+![](https://uofi.box.com/shared/static/ijcjlnwjq7uwrv3paf4bmwam20h34w2d.png)
+```{r}
+nat$MEDUC[which(nat$MEDUC <6 | nat$MEDUC == 9)] = "other"
+nat$MEDUC[which(nat$MEDUC == 6)] = "Bachelors"
+nat$MEDUC[which(nat$MEDUC == 7 | nat$MEDUC == 8)] = "Masters+"
+nat$MEDUC = as.factor(nat$MEDUC)
+nat$MRACE15 = as.factor(nat$MRACE15)
+levels(nat$MRACE15) = c("Asian Indian", "Chinese", "Filipino", "Japanese","Korean", "Vietnamese")
+nat$MBSTATE_REC = as.factor(nat$MBSTATE_REC)
+levels(nat$MBSTATE_REC) = c("U.S. Born", "Born Outside U.S.")
+nat_plot = ggplot(data = nat, aes(fill = MEDUC, x = MRACE15))
+nat_plot + geom_bar(position = "fill")+ facet_grid(MBSTATE_REC~.) + coord_flip() + xlab("Race")
+```
+
+b. The image below uses the US Natlity Data. Also, explain the image with Markdown syntax (do not include the explanation within the visualization).
+
+![](https://uofi.box.com/shared/static/1b5n0frv30n5bf3un7pldmxtf6lvwi75.png)
+```{r}
+nat$age = nat$MAGER9
+nat$age[which(nat$MAGER9 == 5 | nat$MAGER9 == 6)] = "30-39"
+nat$age[which(nat$MAGER9 >=7)] = "40 and over"
+nat$age[which(nat$MAGER9 <5)] = "<30"
+nat$MAGER9 = as.factor(nat$MAGER9)
+nat_plot2 = ggplot(data = nat, aes(fill = age, x = MRACE15))
+nat_plot2 + geom_bar(position = "fill")+ facet_grid(MBSTATE_REC~.) + coord_flip() + xlab("Race")
+```
+
+c. The image below uses the Chicago Food Inspections Data [link here](https://uofi.box.com/shared/static/5637axblfhajotail80yw7j2s4r27hxd.csv). Also, explain the image with Markdown syntax (do not include the explanation within the visualization).
+
+![](https://uofi.box.com/shared/static/xn71gksmqvz6z30i145c2pnwzrtzblh4.png)
+
+
+d. The image below uses the Chicago Food Inspections Data. Also, explain the image with Markdown syntax (do not include the explanation within the visualization).
+
+![](https://uofi.box.com/shared/static/19hgnx2otbpfk2i8kcnk9uthw4kirvux.png)
+
+
+### 4. Do the following:
+
+Redo problem 3 in **HW03** using the parallel programming.  Does parallel computing perform the tasks in parts **c** and **e** faster than the method that you used in **HW03**? Show your work including the runtimes for the un-parallelized and parallelized versions.
+
+
+### 5. Problem in parallel coding
+
+a. Install the **conformal.glm** R package which can be found at https://github.com/DEck13/conformal.glm.  
+
+Run the following code:
+
+```{r, eval = FALSE}
+library(devtools)
+install_github(repo = "DEck13/conformal.glm", subdir="conformal.glm")
+library(HDInterval)
+library(MASS)
+library(parallel)
+library(conformal.glm)
+set.seed(13)
+n <- 250
+
+# generate predictors
+x <- runif(n)
+
+# set regression coefficient vector
+beta <- c(3, 5)
+
+# generate responses from a linear regression model
+y <- rnorm(n, mean = cbind(1, x) %*% beta, sd = 3)
+
+# store predictors and responses as a dataframe
+dat <- data.frame(y = y, x = x)
+
+# fit linear regression model
+model <- lm(y ~ x, data = dat)
+
+# obtain OLS estimator of beta
+betahat <- model$coefficients
+
+# convert predictors into a matrix
+Xk <- as.matrix(x, nrow = n)
+
+# extract internal model information, this is necessary for the assignment
+call <- model$call
+formula <- call$formula
+family <- "gaussian"
+link <- "identity"
+newdata.formula <- as.matrix(model.frame(formula, as.data.frame(dat))[, -1])
+
+# This function takes on a new (x,y) data point and reports a 
+# value corresponding to how similar this new data point is 
+# with the data that we generated, higher numbers are better.  
+# The goal is to use this function to get a range of new y 
+# values that agrees with our generated data at each x value in 
+# our generated data set.
+density_score <- function(ynew, xnew){
+  rank(phatxy(ynew = ynew, xnew = xnew, Yk = y, Xk = Xk, xnew.modmat = xnew, 
+    data = dat, formula = formula, family = family, link = link))[n+1]
+}
+
+# We try this out on the first x value in our generated data set. 
+# In order to do this we write two line searches
+xnew <- x[1]
+
+# start line searches at the predicted response value 
+# corresponding to xnew
+ystart <- ylwr <- yupr <- as.numeric(c(1,xnew) %*% betahat)
+score <- density_score(ynew = ystart, xnew = xnew)
+
+# line search 1: line search that estimates the largest y 
+# value corresponding to the first x value that agrees with 
+# our generated data 
+while(score > 13){
+  yupr <- yupr + 0.01
+  score <- density_score(ynew = yupr, xnew = xnew)
+}
+
+# line search 2: line search that estimates the smallest y 
+# value corresponding to the first x value that agrees with 
+# our generated data 
+score <- density_score(ynew = ystart, xnew = xnew)
+while(score > 13){
+  ylwr <- ylwr - 0.01
+  score <- density_score(ynew = ylwr, xnew = xnew)
+}
+```
+
+b. Write a function which runs the two line searches in part **a** for the jth generated predictor value.
+```{r}
+linesearch = function(xnew, prec = 0.01) {
+  ystart = ylwr = yupr = as.numeric(c(1,xnew) %*% betahat)
+  score1 = score2 = density_score(ynew = ystart, xnew = xnew)
+  while(score1 > 13 & score2 >13) {
+    if (score1 > 13) {
+      yupr=yupr + prec
+      score1 = density_score(ynew = ystart, xnew = xnew)
+    }
+    if (score2 > 13) {
+      ylwr = ylwr -prec
+      score2 = density_score(ynew = ylwr, xnew = xnew)
+    }
+  }
+  c(yupr,ylwr)
+}
+```
+
+c. Use parallel programming to run the function you wrote in part **b**.  Save the output and record the time that it took to perform these calculations  *NOTE: It is not advised to use `detectCores` as an argument in defining the number of workers you want. It's much better to specify the number of workers explicitly.*
+```{r}
+RNGkind("L'Ecuyer-CMRG")
+cl = makeCluster(4)
+registerDoParallel(cl)
+library(doParallel)
+library(HDInterval)
+library(MASS)
+set.seed(13)
+n <- 250
+x <- runif(n)
+
+beta <- c(3, 5)
+y <- rnorm(n, mean = cbind(1, x) %*% beta, sd = 3)
+dat <- data.frame(y = y, x = x)
+model <- lm(y ~ x, data = dat)
+betahat <- model$coefficients
+Xk <- as.matrix(x, nrow = n)
+call <- model$call
+formula <- call$formula
+family <- "gaussian"
+link <- "identity"
+newdata.formula <- as.matrix(model.frame(formula, as.data.frame(dat))[, -1])
+
+density_score <- function(ynew, xnew){
+  rank(phatxy(ynew = ynew, xnew = xnew, Yk = y, Xk = Xk, xnew.modmat = xnew, 
+    data = dat, formula = formula, family = family, link = link))[n+1]
+}
+system.time({
+  result = foreach(i=1:length(x), .combine = rbind, .export = c("linesearch")) %dopar% {
+    library(conformal.glm)
+    linesearch(x[i])
+  }
+})
+stopCluster(cl)
+```
+
+d. Redo the calculation in part **c** using ``lapply`` and record the time it took to run this job. Which method is faster?
+```{r}
+system.time({
+  library(conformal.glm)
+  result2 = do.call(rbind, lapply(x,linesearch))
+})
+```
+
+Parallel programming is much faster
+
+e. Using **ggplot**, plot the original data and depict lines of the lower and upper boundaries that you computed from part **c**. 
+```{r}
+dat = as.data.frame(cbind(dat,result))
+colnames(dat)[3:4] = c("upr","lwr")
+ggplot(data = dat,aes(x,y)) + geom_point() + geom_line(mapping = aes(x, lwr, color = "red")) + geom_line(mapping = aes(x,upr, color = "red"))
+```
+
+
+

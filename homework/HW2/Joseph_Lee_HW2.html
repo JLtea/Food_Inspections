@@ -404,32 +404,32 @@ zlist &lt;- split(dat, f = dat$z)</code></pre>
 </ol>
 <pre class="r"><code>mat = matrix(c(rep(LETTERS[1:5],2),rep(sample(1:10,2),5)), ncol = 2)
 mat = cbind(mat,paste(mat[,1],mat[,2]));mat</code></pre>
-<pre><code>##       [,1] [,2] [,3]  
-##  [1,] &quot;A&quot;  &quot;6&quot;  &quot;A 6&quot; 
-##  [2,] &quot;B&quot;  &quot;10&quot; &quot;B 10&quot;
-##  [3,] &quot;C&quot;  &quot;6&quot;  &quot;C 6&quot; 
-##  [4,] &quot;D&quot;  &quot;10&quot; &quot;D 10&quot;
-##  [5,] &quot;E&quot;  &quot;6&quot;  &quot;E 6&quot; 
-##  [6,] &quot;A&quot;  &quot;10&quot; &quot;A 10&quot;
-##  [7,] &quot;B&quot;  &quot;6&quot;  &quot;B 6&quot; 
-##  [8,] &quot;C&quot;  &quot;10&quot; &quot;C 10&quot;
-##  [9,] &quot;D&quot;  &quot;6&quot;  &quot;D 6&quot; 
-## [10,] &quot;E&quot;  &quot;10&quot; &quot;E 10&quot;</code></pre>
+<pre><code>##       [,1] [,2] [,3] 
+##  [1,] &quot;A&quot;  &quot;9&quot;  &quot;A 9&quot;
+##  [2,] &quot;B&quot;  &quot;7&quot;  &quot;B 7&quot;
+##  [3,] &quot;C&quot;  &quot;9&quot;  &quot;C 9&quot;
+##  [4,] &quot;D&quot;  &quot;7&quot;  &quot;D 7&quot;
+##  [5,] &quot;E&quot;  &quot;9&quot;  &quot;E 9&quot;
+##  [6,] &quot;A&quot;  &quot;7&quot;  &quot;A 7&quot;
+##  [7,] &quot;B&quot;  &quot;9&quot;  &quot;B 9&quot;
+##  [8,] &quot;C&quot;  &quot;7&quot;  &quot;C 7&quot;
+##  [9,] &quot;D&quot;  &quot;9&quot;  &quot;D 9&quot;
+## [10,] &quot;E&quot;  &quot;7&quot;  &quot;E 7&quot;</code></pre>
 <ol start="4" style="list-style-type: lower-alpha">
 <li>add a 4th column to the matrix from part <strong>c</strong> that is a randomized ordering of the pairs of the 3rd column</li>
 </ol>
 <pre class="r"><code>mat = cbind(mat,sample(mat[,3],10));mat</code></pre>
-<pre><code>##       [,1] [,2] [,3]   [,4]  
-##  [1,] &quot;A&quot;  &quot;6&quot;  &quot;A 6&quot;  &quot;A 10&quot;
-##  [2,] &quot;B&quot;  &quot;10&quot; &quot;B 10&quot; &quot;D 10&quot;
-##  [3,] &quot;C&quot;  &quot;6&quot;  &quot;C 6&quot;  &quot;D 6&quot; 
-##  [4,] &quot;D&quot;  &quot;10&quot; &quot;D 10&quot; &quot;B 10&quot;
-##  [5,] &quot;E&quot;  &quot;6&quot;  &quot;E 6&quot;  &quot;C 6&quot; 
-##  [6,] &quot;A&quot;  &quot;10&quot; &quot;A 10&quot; &quot;C 10&quot;
-##  [7,] &quot;B&quot;  &quot;6&quot;  &quot;B 6&quot;  &quot;A 6&quot; 
-##  [8,] &quot;C&quot;  &quot;10&quot; &quot;C 10&quot; &quot;E 10&quot;
-##  [9,] &quot;D&quot;  &quot;6&quot;  &quot;D 6&quot;  &quot;E 6&quot; 
-## [10,] &quot;E&quot;  &quot;10&quot; &quot;E 10&quot; &quot;B 6&quot;</code></pre>
+<pre><code>##       [,1] [,2] [,3]  [,4] 
+##  [1,] &quot;A&quot;  &quot;9&quot;  &quot;A 9&quot; &quot;B 7&quot;
+##  [2,] &quot;B&quot;  &quot;7&quot;  &quot;B 7&quot; &quot;A 9&quot;
+##  [3,] &quot;C&quot;  &quot;9&quot;  &quot;C 9&quot; &quot;C 9&quot;
+##  [4,] &quot;D&quot;  &quot;7&quot;  &quot;D 7&quot; &quot;D 9&quot;
+##  [5,] &quot;E&quot;  &quot;9&quot;  &quot;E 9&quot; &quot;D 7&quot;
+##  [6,] &quot;A&quot;  &quot;7&quot;  &quot;A 7&quot; &quot;A 7&quot;
+##  [7,] &quot;B&quot;  &quot;9&quot;  &quot;B 9&quot; &quot;E 9&quot;
+##  [8,] &quot;C&quot;  &quot;7&quot;  &quot;C 7&quot; &quot;C 7&quot;
+##  [9,] &quot;D&quot;  &quot;9&quot;  &quot;D 9&quot; &quot;B 9&quot;
+## [10,] &quot;E&quot;  &quot;7&quot;  &quot;E 7&quot; &quot;E 7&quot;</code></pre>
 </div>
 <div id="use-the-ccso-bookings-data-to-accomplish-the-following" class="section level3">
 <h3>4. Use the CCSO Bookings Data to accomplish the following:</h3>
