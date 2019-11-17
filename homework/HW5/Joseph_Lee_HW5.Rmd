@@ -129,8 +129,38 @@ ggplot(data = food, aes(x = Year, group = 1)) + geom_area(stat ="count", fill= "
 ### 4. Do the following:
 
 Redo problem 3 in **HW03** using the parallel programming.  Does parallel computing perform the tasks in parts **c** and **e** faster than the method that you used in **HW03**? Show your work including the runtimes for the un-parallelized and parallelized versions.
-```{r}
 
+unparallelized:
+```{r}
+data = read.csv("dataHW3.csv")
+x = data[,1]
+se = function(x) sd(x)/sqrt(length(x))
+B = 1e4
+system.time({
+  resamples = rep(0,B)
+  y = replicate(B,sample(x, replace = TRUE))
+  resamples = apply(y,2, function(y)(mean(y) - mean(x)) / se(y))
+})
+```
+
+parallelized:
+```{r}
+library(doParallel)
+cl = makeCluster(4)
+registerDoParallel(cl)
+B = 1e4
+foo = function(x) {
+  y = sample(x, replace = TRUE)
+  mean(y) - mean(x) / se(y)
+}
+
+system.time({
+  resamples = foreach(i=1:B, .combine = append) %dopar% {
+    x = data[,1]
+    foo(x)
+  }
+})
+stopCluster(cl)
 ```
 
 
@@ -240,9 +270,8 @@ c. Use parallel programming to run the function you wrote in part **b**.  Save t
 RNGkind("L'Ecuyer-CMRG")
 cl = makeCluster(4)
 registerDoParallel(cl)
-library(doParallel)
-library(HDInterval)
-library(MASS)
+#library(HDInterval)
+#library(MASS)
 set.seed(13)
 n <- 250
 x <- runif(n)
