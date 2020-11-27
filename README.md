@@ -1,2 +1,10 @@
-Joseph Lee, STAT385, This is probably the first file I have ever created in CS GitHub Enterprise.The second thing I've written but now in GIt from the command-line git status
-The second thing I've written but now in it from the command-line
+# STAT385 Final Project
+
+Data Analysis and Web application in R Shiny
+
+Interactive application for users to visualize food safety and inspections across the Chicago area.
+
+Data set was pulled from 
+<https://data.cityofchicago.org/Health-Human-Services/Food-Inspections/>
+
+Inspections were done by Chicago Department of Public Health’s Food Protection Program using a standardized procedure.
